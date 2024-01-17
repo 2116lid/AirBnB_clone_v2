@@ -5,6 +5,20 @@ from sqlalchemy import Column, String, Integer, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from models import storage_type
 
+"""
+if storage_type == 'db':
+    place_amenity = Table('place_amenity', Base.metadata,
+                          Column('place_id', String(60),
+                                 ForeignKey('places.id'),
+                                 primary_key=True,
+                                 nullable=False),
+                          Column('amenity_id', String(60),
+                                 ForeignKey('amenities.id'),
+                                 primary_key=True,
+                                 nullable=False)
+                          )
+"""
+
 
 class Place(BaseModel, Base):
     """ updated place class """
@@ -20,8 +34,8 @@ class Place(BaseModel, Base):
         price_by_night = Column(Integer, nullable=False, default=0)
         latitude = Column(Float, nullable=True)
         longitude = Column(Float, nullable=True)
-        #reviews = relationship('Review', backref='place',
-          #                     cascade='all, delete, delete-orphan')
+        reviews = relationship('Review', backref='place',
+                               cascade='all, delete, delete-orphan')
         #amenities = relationship('Amenity', secondary=place_amenity,
          #                        viewonly=False, backref='place_amenities')
     else:
@@ -36,3 +50,15 @@ class Place(BaseModel, Base):
         latitude = 0.0
         longitude = 0.0
         amenity_ids = []
+
+        @property
+        def reviews(self):
+            ''' returns list FileStorage relationship between Place and Review
+            '''
+            from models import storage
+            riv = storage.all(Review)
+            li = []
+            for rev in riv.values():
+                if rev.place_id == self.id:
+                    li.append(rev)
+            return li
