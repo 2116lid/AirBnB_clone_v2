@@ -4,8 +4,9 @@ from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String, Integer, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from models import storage_type
+from sqlalchemy.sql.schema import Table
 
-"""
+
 if storage_type == 'db':
     place_amenity = Table('place_amenity', Base.metadata,
                           Column('place_id', String(60),
@@ -17,7 +18,7 @@ if storage_type == 'db':
                                  primary_key=True,
                                  nullable=False)
                           )
-"""
+
 
 
 class Place(BaseModel, Base):
@@ -36,8 +37,8 @@ class Place(BaseModel, Base):
         longitude = Column(Float, nullable=True)
         reviews = relationship('Review', backref='place',
                                cascade='all, delete, delete-orphan')
-        #amenities = relationship('Amenity', secondary=place_amenity,
-         #                        viewonly=False, backref='place_amenities')
+        amenities = relationship('Amenity', secondary=place_amenity,
+                                 viewonly=False, backref='place_amenities')
     else:
         city_id = ""
         user_id = ""
@@ -53,8 +54,8 @@ class Place(BaseModel, Base):
 
         @property
         def reviews(self):
-            ''' returns list FileStorage relationship between Place and Review
-            '''
+            """returns list FileStorage relationship between Place and Review
+            """
             from models import storage
             riv = storage.all(Review)
             li = []
@@ -62,3 +63,23 @@ class Place(BaseModel, Base):
                 if rev.place_id == self.id:
                     li.append(rev)
             return li
+
+        @property
+        def amenities(self):
+            """returns the list of Amenity instances"""
+            from models import storage
+            tool = storage.all(Amenity)
+            li = []
+            for t in tool.values():
+                if t.id in self.amenity_ids:
+                    li.append(t)
+            return li
+
+        @amenities.setter
+        def amenities(self, obj):
+            """method for adding an Amenity.id to the attribute amenity_ids
+            """
+            if obj is not None:
+                if isinstance(obj, Amenity):
+                    if obj.id not in self.amenity_ids:
+                        self.amenity_ids.append(obj.id)
