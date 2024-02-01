@@ -59,10 +59,8 @@ def do_deploy(archive_path):
         success = False
     return success
 
+
 def deploy():
     """Archives and deploys the static files to the host servers."""
     archive_path = do_pack()
-    if not archive_path:
-        return False
-    res = do_deploy(archive_path)
-    return res
+    return do_deploy(archive_path) if archive_path else False
