@@ -15,7 +15,7 @@ def do_pack():
     if not os.path.isdir("versions"):
         os.mkdir("versions")
     cur_time = datetime.now()
-    output = "versions/web_static_{}{}{}{}{}{}.tgz".format(
+    result = "versions/web_static_{}{}{}{}{}{}.tgz".format(
         cur_time.year,
         cur_time.month,
         cur_time.day,
@@ -24,13 +24,13 @@ def do_pack():
         cur_time.second
     )
     try:
-        print("Packing web_static to {}".format(output))
-        local("tar -cvzf {} web_static".format(output))
-        archive_size = os.stat(output).st_size
-        print("web_static packed: {} -> {} Bytes".format(output, archive_size))
+        print("Packing web_static to {}".format(result))
+        local("tar -cvzf {} web_static".format(result))
+        archive_size = os.stat(result).st_size
+        print("web_static packed: {} -> {} Bytes".format(result, archive_size))
     except Exception:
-        output = None
-    return output
+        result = None
+    return result
 
 
 def do_deploy(archive_path):
@@ -59,9 +59,10 @@ def do_deploy(archive_path):
         success = False
     return success
 
-
 def deploy():
-    """Archives and deploys the static files to the host servers.
-    """
+    """Archives and deploys the static files to the host servers."""
     archive_path = do_pack()
-    return do_deploy(archive_path) if archive_path else False
+    if not archive_path:
+        return False
+    res = do_deploy(archive_path)
+    return res
