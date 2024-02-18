@@ -15,6 +15,7 @@ def cistate():
 
 
 @app.teardown_appcontext
+def teardown(exception):
     """closes the storage on teardown"""
     storage.close()
 
