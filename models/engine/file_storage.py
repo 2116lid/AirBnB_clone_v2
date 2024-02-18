@@ -65,6 +65,6 @@ class FileStorage:
         if obj_key in self.__objects.keys():
             del self.__objects[obj_key]
 
-    def last(self):
-        """call reload"""
+    def close(self):
+        """calls reload"""
         self.reload()

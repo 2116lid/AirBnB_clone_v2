@@ -5,19 +5,23 @@ from models import storage_type
 from models.city import City
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
+import os
 
 
 class State(BaseModel, Base):
     """A state class"""
     __tablename__ = 'states'
+    name = Column(
+        String(128), nullable=False
+    ) if os.getenv('HBNB_TYPE_STORAGE') == 'db' else ''
+    if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+        cities = relationship(
+            'City',
+            cascade='all, delete, delete-orphan',
+            backref='state'
+        )
 
-    if storage_type == 'db':
-        name = Column(String(128), nullable=False)
-        cities = relationship('City', backref='state',
-                              cascade='all, delete, delete-orphan')
     else:
-        name = ""
-
         @property
         def cities(self):
             '''returns FileStorage relationship between State and City'''
